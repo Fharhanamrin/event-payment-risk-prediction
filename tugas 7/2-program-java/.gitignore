@@ -1,0 +1,6 @@
+out/
+output/
+*.class
+.DS_Store
+.idea/
+.vscode/

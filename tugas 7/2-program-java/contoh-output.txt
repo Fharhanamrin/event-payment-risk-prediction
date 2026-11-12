@@ -1,0 +1,204 @@
+
+==============================================================================
+ PAGE 1 · LOGIN  (FR-01, FR-02)
+==============================================================================
+  rina.admin                 → Email atau kata sandi yang Anda masukkan salah
+  dimas.eo salah 5x → terkunci sampai 2026-10-15 15:15:00
+  dimas.eo                   → DITOLAK: akun terkunci sementara sampai 2026-10-15 15:15:00
+  rina.admin@tixcorner.com   → login berhasil, diarahkan ke /dashboard (ringkasan Admin)
+
+==============================================================================
+ PAGE 3 · DATASET & MODEL  (FR-11, FR-12, FR-13)
+==============================================================================
+  Dataset #11 DS-2026-09-v1 | sha256:5ff980a3b63b...
+  Baris mentah 3225 → valid 3104 (gagal 1307 / berhasil 1797)
+    ditolak Nominal tagihan tidak positif              : 4
+    ditolak Jatuh tempo tidak setelah waktu observasi  : 3
+    ditolak Duplikat invoice_id                        : 5
+    ditolak Dikeluarkan (event_cancelled)              : 33
+    ditolak Dikeluarkan (refund)                       : 44
+    ditolak Dikeluarkan (admin_cancelled)              : 12
+    ditolak Belum memiliki hasil akhir                 : 20
+    ditolak Melintasi batas periode split              : 37
+  Split  : latih 2026-01-06 s.d. 2026-07-07 (2151), validasi 2026-07-08 s.d. 2026-08-15 (451), uji 2026-08-16 s.d. 2026-09-27 (465)
+  Layak latih? true
+
+  Model #3 DT-v1.2 (criterion=gini, max_depth=5, min_samples_leaf=20, random_state=42) → status eksperimen
+  Evaluasi #5 uji 2026-08-16 s.d. 2026-09-27 | gagal=199; berhasil=266
+  Confusion matrix   : TP=149  FP=72  TN=194  FN=50
+  Accuracy 0.738 | Precision 0.674 | Recall 0.749 | F1 0.710
+  Baseline           : mayoritas (kelas 0): acc=0.572, recall=0.000, F1=0.000
+  Kriteria           : recall >= 0.60; F1 >= 0.60; recall & F1 > baseline (contoh TBD-03)
+  Lulus? true | lebih baik dari baseline? true
+  Aktivasi → BERHASIL, status aktif, disetujui oleh user #1 pada 2026-10-15 15:00:00
+
+  Struktur pohon DT-v1.2:
+    ├─ jika sisa_jam_jatuh_tempo ≤ 23.8 jam
+    │  ├─ jika persentase_terbayar ≤ 33.3%
+    │  │  ├─ jika nominal_transaksi ≤ Rp975.000
+    │  │  │  ├─ jika persentase_terbayar ≤ 33.3%
+    │  │  │  │  ├─ jika sisa_jam_jatuh_tempo ≤ 15.7 jam
+    │  │  │  │  │  └─ P(gagal)=0.64 n=316 → Sedang
+    │  │  │  │  ├─ jika sisa_jam_jatuh_tempo > 15.7 jam
+    │  │  │  │  │  └─ P(gagal)=0.74 n=155 → Tinggi
+    │  │  │  ├─ jika persentase_terbayar > 33.3%
+    │  │  │  │  └─ P(gagal)=0.91 n=33 → Tinggi
+    │  │  ├─ jika nominal_transaksi > Rp975.000
+    │  │  │  ├─ jika hari_pemesanan ≤ 6
+    │  │  │  │  ├─ jika nominal_transaksi ≤ Rp1.825.000
+    │  │  │  │  │  └─ P(gagal)=0.84 n=199 → Tinggi
+    │  │  │  │  ├─ jika nominal_transaksi > Rp1.825.000
+    │  │  │  │  │  └─ P(gagal)=0.73 n=56 → Tinggi
+    │  │  │  ├─ jika hari_pemesanan > 6
+    │  │  │  │  ├─ jika nominal_transaksi ≤ Rp1.325.000
+    │  │  │  │  │  └─ P(gagal)=0.55 n=20 → Sedang
+    │  │  │  │  ├─ jika nominal_transaksi > Rp1.325.000
+    │  │  │  │  │  └─ P(gagal)=0.81 n=21 → Tinggi
+    │  ├─ jika persentase_terbayar > 33.3%
+    │  │  ├─ jika penggunaan_promo = tidak
+    │  │  │  ├─ jika sisa_jam_jatuh_tempo ≤ 13.1 jam
+    │  │  │  │  ├─ jika metode_pembayaran ∈ {ewallet, kartu_kredit, transfer_bank}
+    │  │  │  │  │  └─ P(gagal)=0.18 n=56 → Rendah
+    │  │  │  │  ├─ jika metode_pembayaran ∈ {virtual_account}
+    │  │  │  │  │  └─ P(gagal)=0.06 n=31 → Rendah
+    │  │  │  ├─ jika sisa_jam_jatuh_tempo > 13.1 jam
+    │  │  │  │  ├─ jika sisa_jam_jatuh_tempo ≤ 14.8 jam
+    │  │  │  │  │  └─ P(gagal)=0.45 n=20 → Sedang
+    │  │  │  │  ├─ jika sisa_jam_jatuh_tempo > 14.8 jam
+    │  │  │  │  │  └─ P(gagal)=0.24 n=76 → Rendah
+    │  │  ├─ jika penggunaan_promo = ya
+    │  │  │  ├─ jika persentase_terbayar ≤ 66.7%
+    │  │  │  │  ├─ jika sisa_jam_jatuh_tempo ≤ 15.1 jam
+    │  │  │  │  │  └─ P(gagal)=0.54 n=26 → Sedang
+    │  │  │  │  ├─ jika sisa_jam_jatuh_tempo > 15.1 jam
+    │  │  │  │  │  └─ P(gagal)=0.14 n=21 → Rendah
+    │  │  │  ├─ jika persentase_terbayar > 66.7%
+    │  │  │  │  └─ P(gagal)=0.67 n=21 → Sedang
+    ├─ jika sisa_jam_jatuh_tempo > 23.8 jam
+    │  ├─ jika sisa_jam_jatuh_tempo ≤ 48.0 jam
+    │  │  ├─ jika persentase_terbayar ≤ 33.3%
+    │  │  │  ├─ jika metode_pembayaran ∈ {ewallet, kartu_kredit}
+    │  │  │  │  ├─ jika jumlah_cicilan_dipilih ≤ 2
+    │  │  │  │  │  └─ P(gagal)=0.20 n=166 → Rendah
+    │  │  │  │  ├─ jika jumlah_cicilan_dipilih > 2
+    │  │  │  │  │  └─ P(gagal)=0.47 n=32 → Sedang
+    │  │  │  ├─ jika metode_pembayaran ∈ {transfer_bank, virtual_account}
+    │  │  │  │  ├─ jika nominal_transaksi ≤ Rp775.000
+    │  │  │  │  │  └─ P(gagal)=0.35 n=169 → Rendah
+    │  │  │  │  ├─ jika nominal_transaksi > Rp775.000
+    │  │  │  │  │  └─ P(gagal)=0.51 n=166 → Sedang
+    │  │  ├─ jika persentase_terbayar > 33.3%
+    │  │  │  ├─ jika penggunaan_promo = tidak
+    │  │  │  │  ├─ jika hari_pemesanan ≤ 3
+    │  │  │  │  │  └─ P(gagal)=0.14 n=44 → Rendah
+    │  │  │  │  ├─ jika hari_pemesanan > 3
+    │  │  │  │  │  └─ P(gagal)=0.03 n=76 → Rendah
+    │  │  │  ├─ jika penggunaan_promo = ya
+    │  │  │  │  ├─ jika persentase_terbayar ≤ 66.7%
+    │  │  │  │  │  └─ P(gagal)=0.13 n=31 → Rendah
+    │  │  │  │  ├─ jika persentase_terbayar > 66.7%
+    │  │  │  │  │  └─ P(gagal)=0.27 n=26 → Rendah
+    │  ├─ jika sisa_jam_jatuh_tempo > 48.0 jam
+    │  │  ├─ jika persentase_terbayar ≤ 33.3%
+    │  │  │  ├─ jika jumlah_cicilan_dipilih ≤ 2
+    │  │  │  │  ├─ jika jumlah_cicilan_dipilih ≤ 1
+    │  │  │  │  │  └─ P(gagal)=0.12 n=177 → Rendah
+    │  │  │  │  ├─ jika jumlah_cicilan_dipilih > 1
+    │  │  │  │  │  └─ P(gagal)=0.02 n=48 → Rendah
+    │  │  │  ├─ jika jumlah_cicilan_dipilih > 2
+    │  │  │  │  ├─ jika sisa_jam_jatuh_tempo ≤ 57.8 jam
+    │  │  │  │  │  └─ P(gagal)=0.43 n=21 → Sedang
+    │  │  │  │  ├─ jika sisa_jam_jatuh_tempo > 57.8 jam
+    │  │  │  │  │  └─ P(gagal)=0.19 n=42 → Rendah
+    │  │  ├─ jika persentase_terbayar > 33.3%
+    │  │  │  ├─ jika nominal_transaksi ≤ Rp1.225.000
+    │  │  │  │  └─ P(gagal)=0.00 n=78 → Rendah
+    │  │  │  ├─ jika nominal_transaksi > Rp1.225.000
+    │  │  │  │  └─ P(gagal)=0.08 n=24 → Rendah
+
+==============================================================================
+ PAGE 4 · JALANKAN PREDIKSI  (FR-05, FR-06)
+==============================================================================
+  Run #27 | model DT-v1.2 | waktu observasi 2026-10-15 15:00:00
+  Berhasil diproses 120 | dilewati 4 | gagal diproses 0
+    dilewati INV-2026-00991 : Sudah melewati jatuh tempo
+    dilewati INV-2026-00992 : Sudah melewati jatuh tempo
+    dilewati INV-2026-00994 : Nominal terbayar tidak sah
+    dilewati INV-2026-00993 : Nominal tagihan tidak positif
+
+  10 skor tertinggi:
+  ID     Invoice         Event         Skor   Risiko  Sisa jam
+  593    INV-2026-00887  EVT-2026-025  0.91   Tinggi  20.3
+  527    INV-2026-00938  EVT-2026-018  0.91   Tinggi  1.3
+  501    INV-2026-00871  EVT-2026-018  0.84   Tinggi  18.0
+  505    INV-2026-00877  EVT-2026-018  0.84   Tinggi  7.3
+  561    INV-2026-00909  EVT-2026-021  0.84   Tinggi  21.8
+  519    INV-2026-00922  EVT-2026-018  0.84   Tinggi  19.8
+  570    INV-2026-00928  EVT-2026-021  0.84   Tinggi  11.8
+  525    INV-2026-00931  EVT-2026-018  0.84   Tinggi  10.9
+  608    INV-2026-00953  EVT-2026-025  0.84   Tinggi  20.7
+  577    INV-2026-00961  EVT-2026-021  0.84   Tinggi  19.7
+
+==============================================================================
+ PAGE 2 · DASHBOARD RINGKASAN  (FR-03, FR-04, FR-14)
+==============================================================================
+  Total invoice diprediksi : 120
+  Semua event                                    Rendah  55 (45.8%) | Sedang  34 (28.3%) | Tinggi  31 (25.8%)
+  EVT-2026-018 Konser Senja Raya 2026            Rendah  17 (35.4%) | Sedang  18 (37.5%) | Tinggi  13 (27.1%)
+  EVT-2026-021 Festival Kuliner Nusantara 2026   Rendah  20 (50.0%) | Sedang  10 (25.0%) | Tinggi  10 (25.0%)
+  EVT-2026-025 Pekan Teknologi Nusantara 2026    Rendah  18 (56.3%) | Sedang   6 (18.8%) | Tinggi   8 (25.0%)
+  Status aktual (konteks, bukan prediksi): pending 71 | partially_paid 49 | gagal aktual 0
+  Filter {event_id=EVT-2026-018, risk_level=Tinggi} → 13 invoice
+  Ekspor CSV → output/laporan_prediksi_20261015_1500.csv
+  [ditolak] Format PDF belum didukung di prototipe (gunakan CSV)
+  [ditolak] Tidak ada data untuk diekspor
+
+==============================================================================
+ PAGE 5 · DETAIL PREDIKSI & JALUR KEPUTUSAN  (FR-07, FR-08)
+==============================================================================
+  Result #501 | INV-2026-00871 | EVT-2026-018 | run #27 | model DT-v1.2
+  Tagihan Rp1.500.000 | terbayar Rp450.000 (30%) | cicilan 3x | virtual_account | promo ya
+  Dibuat 2026-10-13 09:00:00 | jatuh tempo 2026-10-16 09:00:00 | sisa 18.0 jam
+  Snapshot fitur : {"nominal_transaksi": 1500000.00, "persentase_terbayar": 0.30, "jumlah_cicilan_dipilih": 3, "metode_pembayaran": "virtual_account", "penggunaan_promo": true, "sisa_jam_jatuh_tempo": 18.00, "hari_pemesanan": 2}
+  Skor P(gagal) = 0.84 → kategori Tinggi (ambang Rendah<0.35; Sedang<0.70; Tinggi>=0.70)
+  Jalur keputusan:
+    1. sisa_jam_jatuh_tempo ≤ 23.8 jam
+    2. persentase_terbayar ≤ 33.3%
+    3. nominal_transaksi > Rp975.000
+    4. hari_pemesanan ≤ 6
+    5. nominal_transaksi ≤ Rp1.825.000
+    6. daun: P(gagal)=0.84 (n=199)
+  Status aktual saat ini (terpisah): partially_paid — hasil masih berlaku
+  Pembanding #502 INV-2026-00872: P(gagal)=0.51 → Sedang | sisa_jam_jatuh_tempo > 23.8 jam → sisa_jam_jatuh_tempo ≤ 48.0 jam → persentase_terbayar ≤ 33.3% → metode_pembayaran ∈ {transfer_bank, virtual_account} → nominal_transaksi > Rp775.000 → daun: P(gagal)=0.51 (n=166)
+
+==============================================================================
+ PAGE 6 · ANTREAN PRIORITAS TINDAK LANJUT  (FR-09, FR-10)
+==============================================================================
+  Log #9001 tersimpan: result #501 → "Sudah Dihubungi - Janji Bayar"
+  Catatan tindak lanjut berhasil diperbarui.
+  Catatan disanitasi : &lt;script&gt;alert(&#x27;x&#x27;)&lt;/script&gt; nomor tidak aktif
+  [ditolak] Status tindak lanjut tidak valid atau catatan > 500 karakter
+
+  Antrean dibuka 2026-10-15 16:30:00 — 62 invoice Sedang/Tinggi
+  No   Invoice         Risiko  P      Skor@pred Skor kini Sisa jam Tindak lanjut
+  1    INV-2026-00968  Tinggi  0.81   0.862     0.869     4.1      Belum Dihubungi
+  2    INV-2026-00973  Tinggi  0.84   0.836     0.844     11.3     Kontak Tidak Valid
+  3    INV-2026-00986  Tinggi  0.84   0.823     0.835     8.6      Belum Dihubungi
+  4    INV-2026-00871  Tinggi  0.84   0.807     0.815     16.5     Sudah Dihubungi - Janji Bayar
+  5    INV-2026-00877  Tinggi  0.84   0.785     0.810     5.8      Belum Dihubungi
+  6    INV-2026-00887  Tinggi  0.91   0.777     0.789     18.8     Belum Dihubungi
+  7    INV-2026-00888  Sedang  0.64   0.756     0.781     0.3      Belum Dihubungi
+  8    INV-2026-00989  Sedang  0.64   0.754     0.779     0.4      Belum Dihubungi
+  9    INV-2026-00949  Sedang  0.64   0.768     0.774     2.6      Belum Dihubungi
+  10   INV-2026-00889  Tinggi  0.74   0.767     0.773     17.3     Belum Dihubungi
+
+==============================================================================
+ VARIAN PAGE 2 · DASHBOARD PENGELOLA EVENT  (FR-02, NFR-16)
+==============================================================================
+  bagas.eo                   → login berhasil, diarahkan ke /dashboard (agregat event sendiri)
+  Event diizinkan : [EVT-2026-018]
+  Agregat risiko  : {Rendah=17, Sedang=18, Tinggi=13}
+  [ditolak] 403 Forbidden: event EVT-2026-021 bukan milik Anda
+
+  Logout rina & bagas.
+  [ditolak] Sesi tidak aktif. Silakan login terlebih dahulu.
